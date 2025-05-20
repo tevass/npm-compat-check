@@ -1,0 +1,23 @@
+{
+  "name": "npm-compat",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "bin": "./dist/index.js",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "dependencies": {
+    "commander": "^14.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@total-typescript/tsconfig": "^1.0.4",
+    "@types/node": "^22.15.19",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3"
+  }
+}

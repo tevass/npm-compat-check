@@ -1,16 +1,13 @@
 #!/usr/bin/env node
 
-import { Command } from "commander";
+import { checkCommand } from "./commands/check";
 
 import packageJson from "../package.json";
 
-const program = new Command()
-  .name("npm-compat")
-  .description("check npm packages compatibility")
-  .version(
-    packageJson.version || "1.0.0",
-    "-v, --version",
-    "display the version number",
-  );
+const program = checkCommand.version(
+  packageJson.version || "1.0.0",
+  "-v, --version",
+  "display the version number",
+);
 
 program.parse();

@@ -1,6 +1,6 @@
 {
   "name": "compat-check",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Check compatibility of npm packages",
   "license": "ISC",
   "publishConfig": {
@@ -27,7 +27,8 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "lint:fix": "biome check --write --error-on-warnings"
+    "lint:fix": "biome check --write --error-on-warnings",
+    "pub:release": "pnpm build && pnpm publish --access public"
   },
   "dependencies": {
     "commander": "^14.0.0",

@@ -65,11 +65,11 @@ cd npm-compat-check
 # Install dependencies
 pnpm install
 
-# Create a symlink to run CLI locally
-pnpm link . -g
-
 # Build for production
 pnpm build
+
+# Create a symlink to run CLI locally
+pnpm link . -g
 ```
 
 After linking, you can run the CLI locally with the `compat-check` command.

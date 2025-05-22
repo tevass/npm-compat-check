@@ -1,6 +1,6 @@
 # npm-compat-check
 
-A CLI tool to check compatibility between npm packages based on peer and dev dependencies.
+A CLI tool to check compatibility between npm packages based on their regular and peer dependencies.
 
 ## Installation
 
@@ -40,32 +40,33 @@ compat-check react react-router-dom
 
 ## How It Works
 
-The tool checks compatibility by:
+The tool checks compatibility through the following steps:
 
-1. Fetching all stable versions of the source package
-2. Checking if the target package is listed in the source package's peer or dev dependencies
-3. Verifying if the target package's version satisfies the version range specified in the source package's dependencies
-4. Returning the first compatible version found
+1. Fetches all stable versions of the source package
+2. Checks if the target package is listed in the source package's regular or peer dependencies
+3. Verifies if the target package's version satisfies the version range specified in the source package's dependencies
+4. Returns the first compatible version found
 
 ## Features
 
-- ✅ Checks compatibility based on peer and dev dependencies
+- ✅ Checks compatibility based on regular and peer dependencies
 - ✅ Supports semantic versioning ranges
 - ✅ Automatically uses latest stable version if not specified
 - ✅ Colorful and informative terminal output
+- ✅ Support for different package specification formats (e.g., @scope/package, package@version)
 
 ## Development
 
 ```bash
 # Clone the repository
-git clone https://github.com/username/npm-compat-check.git
+git clone https://github.com/tevass/npm-compat-check.git
 cd npm-compat-check
 
 # Install dependencies
 pnpm install
 
 # Create a symlink to run CLI locally
-pnpm link .
+pnpm link . -g
 
 # Build for production
 pnpm build

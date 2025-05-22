@@ -3,7 +3,17 @@
   "version": "1.0.0",
   "description": "Check compatibility of npm packages",
   "license": "ISC",
-  "author": "Estevão",
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": {
+    "name": "Estevão",
+    "url": "http://github.com/tevass"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tevass/npm-compat-check.git"
+  },
   "type": "module",
   "bin": "./dist/index.js",
   "files": [
@@ -21,7 +31,6 @@
   },
   "dependencies": {
     "commander": "^14.0.0",
-    "compat-check": "link:",
     "kleur": "^4.1.5",
     "npm-package-arg": "^12.0.2",
     "npm-registry-fetch": "^18.0.2",
@@ -43,7 +52,7 @@
   },
   "pnpm": {
     "overrides": {
-      "compat-check": "link:"
+      "compat-check": "link:../../../AppData/Local/pnpm/global/5/node_modules/compat-check"
     }
   }
 }

@@ -14,9 +14,6 @@ importers:
       commander:
         specifier: ^14.0.0
         version: 14.0.0
-      compat-check:
-        specifier: link:../../../AppData/Local/pnpm/global/5/node_modules/compat-check
-        version: link:../../../AppData/Local/pnpm/global/5/node_modules/compat-check
       kleur:
         specifier: ^4.1.5
         version: 4.1.5

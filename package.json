@@ -1,5 +1,5 @@
 {
-  "name": "compat-check",
+  "name": "@tev4ss/compat-check",
   "version": "0.1.0",
   "description": "Check compatibility of npm packages",
   "license": "ISC",

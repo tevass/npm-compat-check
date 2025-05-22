@@ -6,13 +6,13 @@ A CLI tool to check compatibility between npm packages based on their regular an
 
 ```bash
 # Using npm
-npm install -g compat-check
+npm install -g @tev4ss/compat-check
 
 # Using pnpm
-pnpm add -g compat-check
+pnpm add -g @tev4ss/compat-check
 
 # Using yarn
-yarn global add compat-check
+yarn global add @tev4ss/compat-check
 ```
 
 ## Usage

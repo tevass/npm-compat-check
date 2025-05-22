@@ -39,7 +39,7 @@ export async function fetchStableVersions(
   return versions;
 }
 
-export async function getLastestStableVersion(packageName: string) {
+export async function getLatestStableVersion(packageName: string) {
   const response = await fetch.json(packageName);
   if (!response.versions) {
     throw new Error(`Package ${packageName} not found`);

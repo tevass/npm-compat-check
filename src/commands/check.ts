@@ -11,8 +11,8 @@ import {
 } from "../utils";
 
 const optionsSchema = z.object({
-  sourcePackage: z.string().transform((val) => npm.parsePackageName(val)),
-  targetPackage: z.string().transform((val) => npm.parsePackageName(val)),
+  source: z.string().transform((val) => npm.parsePackageName(val)),
+  target: z.string().transform((val) => npm.parsePackageName(val)),
 });
 
 export const checkCommand = new Command("compat-check")
@@ -21,60 +21,63 @@ export const checkCommand = new Command("compat-check")
   .argument("<source>", "Source package to check")
   .action(async (targetPackage, sourcePackage) => {
     try {
-      const options = optionsSchema.parse({ sourcePackage, targetPackage });
+      const options = optionsSchema.parse({
+        target: targetPackage,
+        source: sourcePackage,
+      });
 
-      let versionOfTarget =
-        npm.validVersion(options.targetPackage.rawSpec) ?? "0.0.0";
+      const { target, source } = options;
+      const isTargetSameAsSource = target.name === source.name;
 
+      if (isTargetSameAsSource) {
+        logger.error("Target package is the same as source package");
+
+        return;
+      }
+
+      let targetVersion = npm.validVersion(target.rawSpec) ?? "0.0.0";
       const useLatestTargetVersion =
-        options.targetPackage.type === "range" &&
-        options.targetPackage.rawSpec === "*";
+        target.type === "range" && target.rawSpec === "*";
 
       if (useLatestTargetVersion) {
         logger.warn(
-          `Target package ${highlighter.info(options.targetPackage.name)} not has a version, using the latest stable version`,
+          `Target package ${highlighter.info(target.name)} not has a version, using the latest stable version`,
         );
         logger.warn(
-          `If you want to check a specific version, use the format: ${highlighter.info(`${options.targetPackage.name}@version`)}`,
+          `If you want to check a specific version, use the format: ${highlighter.info(`${target.name}@version`)}`,
         );
 
         const fetchReleasesOfTargetSpinner = spinner(
-          `Fetching releases for ${highlighter.info(options.targetPackage.name)}`,
+          `Fetching releases for ${highlighter.info(target.name)}`,
         ).start();
 
-        const latestVersion = await npm.getLastestStableVersion(
-          options.targetPackage.name,
-        );
-
-        versionOfTarget = latestVersion;
+        targetVersion = await npm.getLatestStableVersion(target.name);
 
         fetchReleasesOfTargetSpinner.succeed(
-          `Using ${highlighter.info(`${options.targetPackage.name}@${versionOfTarget}`)} as target package version`,
+          `Using ${highlighter.info(`${target.name}@${targetVersion}`)} as target package version`,
         );
       }
 
       const fetchReleasesOfSourceSpinner = spinner(
-        `Fetching releases for ${highlighter.info(options.sourcePackage.name)}`,
+        `Fetching releases for ${highlighter.info(source.name)}`,
       ).start();
 
-      const releasesOfSource = await npm.fetchStableVersions(
-        options.sourcePackage.name,
-      );
+      const releasesOfSource = await npm.fetchStableVersions(source.name);
 
       fetchReleasesOfSourceSpinner.succeed(
-        `Fetched ${highlighter.info(releasesOfSource.length)} stable releases for ${highlighter.info(options.sourcePackage.name)}`,
+        `Fetched ${highlighter.info(releasesOfSource.length)} stable releases for ${highlighter.info(source.name)}`,
       );
 
       for (const release of releasesOfSource) {
         const result = compatibility.checkCompatibility(
-          { name: options.targetPackage.name, version: versionOfTarget },
+          { name: target.name, version: targetVersion },
           release,
         );
 
-        const sourceWithVersion = `${options.sourcePackage.name}@${release.version}`;
-        const targetWithVersion = `${options.targetPackage.name}@${versionOfTarget}`;
+        const sourceWithVersion = `${source.name}@${release.version}`;
+        const targetWithVersion = `${target.name}@${targetVersion}`;
 
-        if (result.isCompatible) {
+        if (result.hasCompatibility) {
           logger.success(
             `✔ ${highlighter.info(sourceWithVersion)} is compatible with ${highlighter.info(targetWithVersion)}`,
           );
@@ -85,6 +88,8 @@ export const checkCommand = new Command("compat-check")
         logger.error(
           `✖ ${highlighter.info(sourceWithVersion)} is not compatible with ${highlighter.info(targetWithVersion)} because "${result.reason}"`,
         );
+
+        if (result.reason === "not-found") break;
       }
     } catch (error) {
       return handleError(error);

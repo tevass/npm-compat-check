@@ -12,32 +12,31 @@ export function checkCompatibility(
   release: PackageRelease,
 ): CompatibilityResult {
   const releasePackageVersion =
-    release.peerDependencies[target.name] ||
-    release.devDependencies[target.name];
+    release.peerDependencies[target.name] || release.dependencies[target.name];
 
   if (!releasePackageVersion) {
     return {
       version: release.version,
-      isCompatible: false,
+      hasCompatibility: false,
       reason: "not-found",
     };
   }
 
-  const isCompatibleVersions = semver.satisfies(
+  const hasCompatibility = semver.satisfies(
     target.version,
     releasePackageVersion,
   );
 
-  if (!isCompatibleVersions) {
+  if (!hasCompatibility) {
     return {
       version: release.version,
-      isCompatible: false,
+      hasCompatibility: false,
       reason: "version-mismatch",
     };
   }
 
   return {
     version: release.version,
-    isCompatible: isCompatibleVersions,
+    hasCompatibility: hasCompatibility,
   };
 }

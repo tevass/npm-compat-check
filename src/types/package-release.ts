@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const packageReleaseSchema = z.object({
   version: z.string(),
-  devDependencies: z.record(z.string(), z.string()).default({}),
+  dependencies: z.record(z.string(), z.string()).default({}),
   peerDependencies: z.record(z.string(), z.string()).default({}),
 });
 

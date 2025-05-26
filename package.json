@@ -1,5 +1,5 @@
 {
-  "name": "@tev4ss/compat-check",
+  "name": "npm-compatible",
   "version": "0.1.0",
   "description": "Check compatibility of npm packages",
   "license": "ISC",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tevass/npm-compat-check.git"
+    "url": "https://github.com/tevass/npm-compatible.git"
   },
   "type": "module",
   "bin": "./dist/index.js",

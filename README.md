@@ -1,4 +1,4 @@
-# npm-compat-check
+# npm-compatible
 
 A CLI tool to check compatibility between npm packages based on their regular and peer dependencies.
 
@@ -6,13 +6,13 @@ A CLI tool to check compatibility between npm packages based on their regular an
 
 ```bash
 # Using npm
-npm install -g @tev4ss/compat-check
+npm install -g npm-compatible
 
 # Using pnpm
-pnpm add -g @tev4ss/compat-check
+pnpm add -g npm-compatible
 
 # Using yarn
-yarn global add @tev4ss/compat-check
+yarn global add npm-compatible
 ```
 
 ## Usage
@@ -59,8 +59,8 @@ The tool checks compatibility through the following steps:
 
 ```bash
 # Clone the repository
-git clone https://github.com/tevass/npm-compat-check.git
-cd npm-compat-check
+git clone https://github.com/tevass/npm-compatible.git
+cd npm-compatible
 
 # Install dependencies
 pnpm install

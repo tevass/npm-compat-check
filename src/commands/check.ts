@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import {
   compatibility,
@@ -7,65 +7,53 @@ import {
   highlighter,
   logger,
   npm,
+  resolvePackageVersion,
   spinner,
 } from "../utils";
 
 const optionsSchema = z.object({
-  source: z.string().transform((val) => npm.parsePackageName(val)),
+  base: z.string().transform((val) => npm.parsePackageName(val)),
   target: z.string().transform((val) => npm.parsePackageName(val)),
 });
 
 export const checkCommand = new Command("compat-check")
   .description("Check compatibility between npm packages")
-  .argument("<target>", "Target package with version (e.g. package@version)")
-  .argument("<source>", "Source package to check")
-  .action(async (targetPackage, sourcePackage) => {
+  .argument(
+    "<base>",
+    "Package name to analyze for compatibility with the target package. (e.g. package@version)",
+  )
+  .argument(
+    "<target>",
+    "Package name to check compatibility against the base package. (e.g. package@version)",
+  )
+  .action(async (basePackage, targetPackage) => {
     try {
       const options = optionsSchema.parse({
+        base: basePackage,
         target: targetPackage,
-        source: sourcePackage,
       });
 
-      const { target, source } = options;
-      const isTargetSameAsSource = target.name === source.name;
+      const { base, target } = options;
+      const isSamePackages = target.name === base.name;
 
-      if (isTargetSameAsSource) {
-        logger.error("Target package is the same as source package");
-
-        return;
+      if (isSamePackages) {
+        logger.error(
+          "Packages must have different names, use the format: package@version",
+        );
+        process.exit(1);
       }
 
-      let targetVersion = npm.validVersion(target.rawSpec) ?? "0.0.0";
-      const useLatestTargetVersion =
-        target.type === "range" && target.rawSpec === "*";
-
-      if (useLatestTargetVersion) {
-        logger.warn(
-          `Target package ${highlighter.info(target.name)} not has a version, using the latest stable version`,
-        );
-        logger.warn(
-          `If you want to check a specific version, use the format: ${highlighter.info(`${target.name}@version`)}`,
-        );
-
-        const fetchReleasesOfTargetSpinner = spinner(
-          `Fetching releases for ${highlighter.info(target.name)}`,
-        ).start();
-
-        targetVersion = await npm.getLatestStableVersion(target.name);
-
-        fetchReleasesOfTargetSpinner.succeed(
-          `Using ${highlighter.info(`${target.name}@${targetVersion}`)} as target package version`,
-        );
-      }
+      const baseVersion = await resolvePackageVersion(options.base);
+      const targetVersion = await resolvePackageVersion(options.target);
 
       const fetchReleasesOfSourceSpinner = spinner(
-        `Fetching releases for ${highlighter.info(source.name)}`,
+        `Fetching releases for ${highlighter.info(base.name)}`,
       ).start();
 
-      const releasesOfSource = await npm.fetchStableVersions(source.name);
+      const releasesOfSource = await npm.fetchStableReleases(base.name);
 
       fetchReleasesOfSourceSpinner.succeed(
-        `Fetched ${highlighter.info(releasesOfSource.length)} stable releases for ${highlighter.info(source.name)}`,
+        `Fetched ${highlighter.info(releasesOfSource.length)} stable releases for ${highlighter.info(base.name)}`,
       );
 
       for (const release of releasesOfSource) {
@@ -74,7 +62,7 @@ export const checkCommand = new Command("compat-check")
           release,
         );
 
-        const sourceWithVersion = `${source.name}@${release.version}`;
+        const sourceWithVersion = `${base.name}@${baseVersion}`;
         const targetWithVersion = `${target.name}@${targetVersion}`;
 
         if (result.hasCompatibility) {

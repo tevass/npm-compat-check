@@ -27,11 +27,11 @@ importers:
         specifier: ^7.7.2
         version: 7.7.2
       zod:
-        specifier: ^3.25.17
-        version: 3.25.17
+        specifier: ^3.25.29
+        version: 3.25.29
       zod-validation-error:
         specifier: ^3.4.1
-        version: 3.4.1(zod@3.25.17)
+        version: 3.4.1(zod@3.25.29)
     devDependencies:
       '@biomejs/biome':
         specifier: 1.9.4
@@ -639,8 +639,8 @@ packages:
     resolution: {integrity: sha512-sTSfBjoXBp89JvIKIefqw7U2CCebsc74kiY6awiGogKtoSGbgjYE/G/+l9sF3MWFPNc9IcoOC4ODfKHfxFmp0g==}
     engines: {node: '>= 0.4'}
 
-  get-tsconfig@4.10.0:
-    resolution: {integrity: sha512-kGzZ3LWWQcGIAmg6iWvXn0ei6WDtV26wzHRMwDSzmAbcXrTEXxHy6IehI6/4eT6VRKyMP1eF1VqwrVUmE/LR7A==}
+  get-tsconfig@4.10.1:
+    resolution: {integrity: sha512-auHyJ4AgMz7vgS8Hp3N6HXSmlMdUyhSUrfBF16w153rxtLIEOE+HGqaBppczZvnHLqQJfiHotCYpNhl0lUROFQ==}
 
   glob@10.4.5:
     resolution: {integrity: sha512-7Bv8RF0k6xjo7d4A/PxYLbUCfb6c+Vpd2/mB2yRDlew7Jb5hEXiCD9ibfO7wpk8i4sevK6DFny9h7EYbM3/sHg==}
@@ -1113,8 +1113,8 @@ packages:
     peerDependencies:
       zod: ^3.24.4
 
-  zod@3.25.17:
-    resolution: {integrity: sha512-8hQzQ/kMOIFbwOgPrm9Sf9rtFHpFUMy4HvN0yEB0spw14aYi0uT5xG5CE2DB9cd51GWNsz+DNO7se1kztHMKnw==}
+  zod@3.25.29:
+    resolution: {integrity: sha512-xetH/muIYuAyN7YJGKh99jkBQq/XbGEyTkv7JC4YYsWppHmfoU1MDoQa441WD1QMDaeCaEBO0e0hl1iSmluNQQ==}
 
 snapshots:
 
@@ -1580,7 +1580,7 @@ snapshots:
       dunder-proto: 1.0.1
       es-object-atoms: 1.1.1
 
-  get-tsconfig@4.10.0:
+  get-tsconfig@4.10.1:
     dependencies:
       resolve-pkg-maps: 1.0.0
     optional: true
@@ -2020,7 +2020,7 @@ snapshots:
   tsx@4.19.4:
     dependencies:
       esbuild: 0.25.4
-      get-tsconfig: 4.10.0
+      get-tsconfig: 4.10.1
     optionalDependencies:
       fsevents: 2.3.3
     optional: true
@@ -2071,8 +2071,8 @@ snapshots:
 
   yallist@5.0.0: {}
 
-  zod-validation-error@3.4.1(zod@3.25.17):
+  zod-validation-error@3.4.1(zod@3.25.29):
     dependencies:
-      zod: 3.25.17
+      zod: 3.25.29
 
-  zod@3.25.17: {}
+  zod@3.25.29: {}

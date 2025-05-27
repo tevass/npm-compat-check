@@ -1,6 +1,4 @@
-import { z } from "zod";
-
-import { highlighter } from "./highlighter";
+import { z } from "zod/v4";
 import { logger } from "./logger";
 
 export function handleError(error: unknown) {
@@ -19,11 +17,7 @@ export function handleError(error: unknown) {
   }
 
   if (error instanceof z.ZodError) {
-    logger.error("Validation failed:");
-    for (const [key, value] of Object.entries(error.flatten().fieldErrors)) {
-      logger.error(`- ${highlighter.info(key)}: ${value}`);
-    }
-
+    logger.error(z.prettifyError(error));
     logger.break();
     process.exit(1);
   }

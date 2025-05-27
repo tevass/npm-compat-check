@@ -1,14 +1,27 @@
 import npa from "npm-package-arg";
 import fetch from "npm-registry-fetch";
 import semver from "semver";
-import type { SetNonNullable } from "type-fest";
 
-import { type PackageRelease, packageReleaseSchema } from "../types";
+import {
+  type PackageName,
+  type PackageRelease,
+  packageReleaseSchema,
+} from "../types";
 
 const packageReleasesSchema = packageReleaseSchema.array();
 
-export function validVersion(version: string) {
-  return semver.valid(semver.coerce(version));
+export function parseVersion(version: string) {
+  const parsed = semver.valid(semver.coerce(version));
+
+  if (!parsed) {
+    throw new Error(`Invalid version: ${version}`);
+  }
+
+  return parsed;
+}
+
+export function hasValidVersion(version: string) {
+  return !!semver.valid(semver.coerce(version));
 }
 
 export function parsePackageName(name: string) {
@@ -18,10 +31,23 @@ export function parsePackageName(name: string) {
     throw new Error("Invalid package name");
   }
 
-  return pkg as SetNonNullable<npa.Result, "name">;
+  return pkg as PackageName;
 }
 
-export async function fetchStableVersions(
+export async function fetchStableVersions(packageName: string) {
+  const response = await fetch.json(packageName);
+  if (!response.versions) {
+    throw new Error(`Package ${packageName} not found`);
+  }
+
+  const versions = Object.keys(response.versions)
+    .filter((version) => !semver.prerelease(version))
+    .reverse();
+
+  return versions;
+}
+
+export async function fetchStableReleases(
   packageName: string,
 ): Promise<PackageRelease[]> {
   const response = await fetch.json(packageName);
@@ -34,9 +60,20 @@ export async function fetchStableVersions(
     .map(([_, release]) => release)
     .reverse();
 
-  const versions = packageReleasesSchema.parse(items);
+  const releases = packageReleasesSchema.parse(items);
 
-  return versions;
+  return releases;
+}
+
+export async function getPackageVersion(packageName: PackageName) {
+  try {
+    const response = await fetch.json(
+      `${packageName.name}/${packageName.fetchSpec}`,
+    );
+    return response.version as string;
+  } catch (error) {
+    return null;
+  }
 }
 
 export async function getLatestStableVersion(packageName: string) {
@@ -57,4 +94,8 @@ export async function getLatestStableVersion(packageName: string) {
   }
 
   return version;
+}
+
+export function resolveLatestOrPackageVersion(pkg: npa.Result): string {
+  return "";
 }

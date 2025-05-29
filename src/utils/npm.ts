@@ -5,6 +5,7 @@ import semver from "semver";
 import {
   type PackageName,
   type PackageRelease,
+  type RawPackageName,
   packageReleaseSchema,
 } from "../types";
 
@@ -31,13 +32,13 @@ export function parsePackageName(name: string) {
     throw new Error("Invalid package name");
   }
 
-  return pkg as PackageName;
+  return pkg as RawPackageName;
 }
 
-export async function fetchStableVersions(packageName: string) {
-  const response = await fetch.json(packageName);
+export async function fetchStableVersions(packageName: RawPackageName) {
+  const response = await fetch.json(packageName.name);
   if (!response.versions) {
-    throw new Error(`Package ${packageName} not found`);
+    throw new Error(`Package ${packageName.name} not found`);
   }
 
   const versions = Object.keys(response.versions)
@@ -65,21 +66,32 @@ export async function fetchStableReleases(
   return releases;
 }
 
-export async function getPackageVersion(packageName: PackageName) {
+export async function getPackageVersion(
+  packageName: RawPackageName,
+): Promise<PackageName | null> {
   try {
     const response = await fetch.json(
       `${packageName.name}/${packageName.fetchSpec}`,
     );
-    return response.version as string;
+
+    const release = packageReleaseSchema.parse(response);
+
+    return {
+      name: packageName.name,
+      version: release.version,
+      raw: `${packageName.name}@${release.version}`,
+    };
   } catch (error) {
     return null;
   }
 }
 
-export async function getLatestStableVersion(packageName: string) {
-  const response = await fetch.json(packageName);
+export async function getLatestStableVersion(
+  packageName: RawPackageName,
+): Promise<PackageName> {
+  const response = await fetch.json(packageName.name);
   if (!response.versions) {
-    throw new Error(`Package ${packageName} not found`);
+    throw new Error(`Package ${packageName.name} not found`);
   }
 
   const latest = (Object.keys(response.versions) as string[])
@@ -90,10 +102,14 @@ export async function getLatestStableVersion(packageName: string) {
   const version = semver.valid(semver.coerce(latest));
 
   if (!latest || !version) {
-    throw new Error(`Latest stable version of ${packageName} not found`);
+    throw new Error(`Latest stable version of ${packageName.name} not found`);
   }
 
-  return version;
+  return {
+    version,
+    name: packageName.name,
+    raw: `${packageName.name}@${version}`,
+  };
 }
 
 export function resolveLatestOrPackageVersion(pkg: npa.Result): string {

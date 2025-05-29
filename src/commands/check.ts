@@ -14,6 +14,7 @@ import {
 const optionsSchema = z.object({
   base: z.string().transform((val) => npm.parsePackageName(val)),
   target: z.string().transform((val) => npm.parsePackageName(val)),
+  maxReleases: z.coerce.number().int().positive(),
 });
 
 export const checkCommand = new Command("compat-check")
@@ -26,11 +27,17 @@ export const checkCommand = new Command("compat-check")
     "<base>",
     "Package name to analyze for compatibility with the target package. (e.g. package@version)",
   )
-  .action(async (targetPackage, basePackage) => {
+  .option(
+    "-m, --max-releases <amount>",
+    "Amount of releases to check before exit",
+    "5",
+  )
+  .action(async (targetPackage, basePackage, opts) => {
     try {
       const options = optionsSchema.parse({
         base: basePackage,
         target: targetPackage,
+        ...opts,
       });
 
       const { base, target } = options;
@@ -43,42 +50,55 @@ export const checkCommand = new Command("compat-check")
         process.exit(1);
       }
 
-      const baseVersion = await resolvePackageVersion(options.base);
-      const targetVersion = await resolvePackageVersion(options.target);
+      const baseVersion = await resolvePackageVersion(base);
+      const targetVersion = await resolvePackageVersion(target);
 
       const fetchReleasesOfSourceSpinner = spinner(
         `Fetching releases for ${highlighter.info(base.name)}`,
       ).start();
 
-      const releasesOfSource = await npm.fetchStableReleases(base.name);
+      const releasesOfBasePackage = await npm.fetchStableReleases(base.name);
 
       fetchReleasesOfSourceSpinner.succeed(
-        `Fetched ${highlighter.info(releasesOfSource.length)} stable releases for ${highlighter.info(base.name)}`,
+        `Fetched ${highlighter.info(releasesOfBasePackage.length)} releases for ${highlighter.info(base.name)}`,
       );
+      logger.break();
 
-      for (const release of releasesOfSource) {
+      let amountOfReleasesChecked = 0;
+      for (const release of releasesOfBasePackage) {
+        const checkCompatibilitySpinner = spinner();
+
         const result = compatibility.checkCompatibility(
-          { name: target.name, version: targetVersion },
+          { name: target.name, version: targetVersion.version },
           release,
         );
 
-        const sourceWithVersion = `${base.name}@${baseVersion}`;
-        const targetWithVersion = `${target.name}@${targetVersion}`;
-
         if (result.hasCompatibility) {
-          logger.success(
-            `✔ ${highlighter.info(sourceWithVersion)} is compatible with ${highlighter.info(targetWithVersion)}`,
+          checkCompatibilitySpinner.succeed(
+            highlighter.success(
+              `${highlighter.info(`${baseVersion.name}@${release.version}`)} is compatible with ${highlighter.info(targetVersion.raw)}`,
+            ),
           );
 
-          break;
+          process.exit(0);
         }
 
-        logger.error(
-          `✖ ${highlighter.info(sourceWithVersion)} is not compatible with ${highlighter.info(targetWithVersion)} because "${result.reason}"`,
+        amountOfReleasesChecked++;
+        checkCompatibilitySpinner.fail(
+          highlighter.error(
+            `${highlighter.info(`${baseVersion.name}@${release.version}`)} is not compatible with ${highlighter.info(targetVersion.raw)} because "${result.reason}"`,
+          ),
         );
 
-        if (result.reason === "not-found") break;
+        const hasExceededMaxReleases =
+          amountOfReleasesChecked >= opts.maxReleases;
+        if (result.reason === "not-found" || hasExceededMaxReleases) break;
       }
+
+      logger.break();
+      logger.error(
+        `No compatible release of ${highlighter.info(baseVersion.raw)} was found for ${highlighter.info(targetVersion.raw)}. Checked ${highlighter.info(amountOfReleasesChecked)} releases.`,
+      );
     } catch (error) {
       return handleError(error);
     }

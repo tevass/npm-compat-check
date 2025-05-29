@@ -19,14 +19,14 @@ const optionsSchema = z.object({
 export const checkCommand = new Command("compat-check")
   .description("Check compatibility between npm packages")
   .argument(
-    "<base>",
-    "Package name to analyze for compatibility with the target package. (e.g. package@version)",
-  )
-  .argument(
     "<target>",
     "Package name to check compatibility against the base package. (e.g. package@version)",
   )
-  .action(async (basePackage, targetPackage) => {
+  .argument(
+    "<base>",
+    "Package name to analyze for compatibility with the target package. (e.g. package@version)",
+  )
+  .action(async (targetPackage, basePackage) => {
     try {
       const options = optionsSchema.parse({
         base: basePackage,

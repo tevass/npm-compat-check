@@ -19,33 +19,33 @@ yarn global add npm-compatible
 
 ```bash
 # Check compatibility between packages
-compat-check <target> <source>
+npm-compatible <target> <base> 
 ```
 
 Where:
-- `<target>` - Target package with version (e.g., react@18.2.0)
-- `<source>` - Source package to check for compatibility
+- `<base>` - Base package with version (e.g., react@18.2.0)
+- `<target>` - Target package to check for compatibility
 
-If you don't specify a version for the target package, the CLI will use the latest stable version.
+If you don't specify a version for a package, the CLI will use the latest stable version.
 
 ### Examples
 
 ```bash
-# Check which version of @emotion/react is compatible with react@18.2.0
-compat-check react@18.2.0 @emotion/react
+# Check if react@18.2.0 is compatible with latest version of @emotion/react
+npm-compatible react@18.2.0 @emotion/react
 
-# Check which version of react-router-dom is compatible with the latest version of react
-compat-check react react-router-dom
+# Check if the latest version of react is compatible with react-router-dom
+npm-compatible react react-router-dom
 ```
 
 ## How It Works
 
 The tool checks compatibility through the following steps:
 
-1. Fetches all stable versions of the source package
-2. Checks if the target package is listed in the source package's regular or peer dependencies
-3. Verifies if the target package's version satisfies the version range specified in the source package's dependencies
-4. Returns the first compatible version found
+1. Fetches all stable versions of the base package
+2. Checks if the target package is listed in the base package's regular or peer dependencies
+3. Verifies if the target package's version satisfies the version range specified in the base package's dependencies
+4. Returns compatibility status with relevant information
 
 ## Features
 
@@ -72,4 +72,4 @@ pnpm build
 pnpm link . -g
 ```
 
-After linking, you can run the CLI locally with the `compat-check` command.
+After linking, you can run the CLI locally with the `npm-compatible` command.
